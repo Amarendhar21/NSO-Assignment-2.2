@@ -6,101 +6,94 @@
   become: yes
   become_method: sudo
   tasks:
-    - name: Update apt cache
+    - name: Refresh apt cache on webservers
       apt:
         update_cache: yes
 
-    - name: Install required modules (Python3-pip-venv)
+    - name: Install Python3, pip and venv
       apt:
         name:
           - python3
           - python3-pip
           - python3-venv
         state: present
-    - name: Update apt cache
-      apt:
-        update_cache: yes
 
-    - name: Install Flask
-      become: true
+    - name: Install Flask via pip3
       pip:
         executable: pip3
         name: flask
         state: present
         
-    - name: Installing gunicorn for flask services
+    - name: Install Gunicorn
       apt:
         name: gunicorn
+        state: present
 
-
-    - name: Copy Flask app file
+    - name: Copy Flask application file
       copy:
         src: application2.py
         dest: /home/ubuntu/application2.py
         owner: ubuntu
         mode: '0755'
         
-    - name: start flask app
+    - name: Launch Flask app using Gunicorn
       shell: gunicorn -w 2 -D -b 0.0.0.0:80 application2:app
-      
-    - name: install snmpd
+
+    - name: Install SNMP daemon
       apt:
         name: snmpd
         state: latest
-        
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-        
-    - name: copy required snmpd config files
+
+    - name: Deploy SNMP configuration
       template:
         src: snmpd.conf.j2
         dest: /etc/snmp/snmpd.conf
-        
-    - name: Run snmpd service
+
+    - name: Restart SNMP service
       service:
         name: snmpd
         state: restarted
-      
+
 - hosts: HAproxy
   become: yes
   become_method: sudo
   tasks:
-    - name: Update apt cache
+    - name: Refresh apt cache on HAproxy host
       apt:
         update_cache: yes
         
-    - name: Install HAproxy
+    - name: Install HAProxy
       apt:
         name: haproxy
         state: latest
 
-    - name: Configuring HAproxy
+    - name: Deploy HAProxy configuration
       template:
         src: haproxy.cfg.j2
         dest: /etc/haproxy/haproxy.cfg
-      become: yes
-      
-    - name: Installing nginx,snmp and snmp-mibs-downloader
+
+    - name: Install Nginx, SNMP, and MIB downloader
       apt:
-        update_cache: yes
-        name: [ 'nginx', 'snmp', 'snmp-mibs-downloader' ] 
+        name:
+          - nginx
+          - snmp
+          - snmp-mibs-downloader
         state: latest
-    
-         
-    - name: copy nginx config files
+
+    - name: Deploy Nginx configuration
       template:
-         src: nginx.conf.j2
-         dest: /etc/nginx/nginx.conf
-         
-    - name: nginx start
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+
+    - name: Restart Nginx service
       service:
         name: nginx
         state: restarted  
-    
 
-    - name: Restarting HAproxy
+    - name: Restart HAProxy service
       service:
         name: haproxy
         state: restarted
+
+
    
