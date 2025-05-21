@@ -32,7 +32,7 @@ sysServices    72
 # master: Should the agent operate as a master agent or not.
 #   Currently, the only supported master agent type for this token
 #   is "agentx".
-#
+#   
 #   arguments: (on|yes|agentx|all|off|no)
 
 master  agentx
@@ -54,7 +54,7 @@ agentAddress udp:161
 #   This section defines who is allowed to talk to your running
 #   snmp agent.
 
-# Views
+# Views 
 #   arguments viewname included [oid]
 
 #  system + hrSystem groups only
@@ -82,3 +82,7 @@ rocommunity6 public default -V systemonly
 # rouser: a SNMPv3 read-only access username
 #    arguments: username [noauth|auth|priv [OID | -V VIEW [CONTEXT]]]
 rouser authPrivUser authpriv -V systemonly
+
+
+
+
